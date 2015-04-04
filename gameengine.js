@@ -45,11 +45,9 @@ GameEngine.prototype.init = function (ctx) {
     this.surfaceHeight = this.ctx.canvas.height;
     this.startInput();
     this.timer = new Timer();
-    console.log('game initialized');
 }
 
 GameEngine.prototype.start = function () {
-    console.log("starting game");
     var that = this;
     (function gameLoop() {
         that.loop();
@@ -71,8 +69,7 @@ GameEngine.prototype.startInput = function () {
 }
 
 GameEngine.prototype.addEntity = function (entity) {
-    console.log('added entity');
-    this.entities.push(entity);
+    this.entities.push(entity); 
 }
 
 GameEngine.prototype.draw = function () {
@@ -93,6 +90,8 @@ GameEngine.prototype.update = function () {
         if (!entity.removeFromWorld) {
             entity.update();
         }
+        
+        //console.log(this.entities[i]);
     }
 
     for (var i = this.entities.length - 1; i >= 0; --i) {
@@ -114,6 +113,7 @@ function Entity(game, x, y) {
     this.x = x;
     this.y = y;
     this.removeFromWorld = false;
+
 }
 
 Entity.prototype.update = function () {
