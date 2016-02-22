@@ -1,3 +1,34 @@
+/*
+ * TODO:  Zombie   
+ * needs to know where Bowser is so he can chase him. 
+ *   Need some kind of slowness response for when bowser jumps, keep moving
+ *   only to turn around when bowser lands?  
+ * When to turn around
+ * 
+ * TODO: Bowser
+ * Jump over Zombie
+ * fireball from mouth needs fixing. 
+ * run away direction needs to adjust based on where zombie is
+ * fireball shooting needs to be adjusted to properly shoot fireballs at zombie(s)
+ * 
+ * 
+ * TODO: Create init()
+ * If i make an init method that has all the globals in it to start the game, then 
+ * I could easily have values reset during the game, such as x location for bowser. 
+ * 
+ * NOTES:
+ * If zombie gest close, jump or go around it then run to other side
+ * Random bowser "catch breath". Meaning bowser has to stop to catch his breath from 
+ * all the crazy zombie avoiding he is doing. 
+ * 
+ * 
+ * 
+ * 
+ * 
+ */
+
+
+
 // Globals
 var AM = new AssetManager();
 var bowserLocationX = 512;
@@ -9,8 +40,6 @@ var movingRight = true;
 var movingLeft = false;
 var fireShot;
 var ZombieOnRight = false;
-var fireballShootOffsetX;
-var fireballShootOffsetY;
 var castleLeftSide = 128;
 var castleRightSide = 896;
 var fireballAmmoReady; 
@@ -235,7 +264,7 @@ ZombieAnimation.prototype.isDone = function () {
 //Begin Bowser
 function Bowser(game) {
     //this.animation = new BowserAnimation("why do i need this?", 100, 73, 0.4, 11, true, true);
-    this.x = bowserLocationX;
+    this.x = 512;
     this.y = bowserLocationY;
     this.game = game;
     this.ctx = game.ctx;
@@ -360,18 +389,19 @@ function BowserFire(game) {
     var hitZombie = false;
     this.ZombieOnRight = ZombieOnRight;
     console.log("BowserFire Created.");
+    this.bLocation = new Bowser(game);
     
 }
 
 BowserFire.prototype.bowserMouthLocation = function()
 {
-	return bowserLocationX + fireballShootOffsetX;
+	return this.bLocation.getBowserLocation() + fireballShootOffsetX;
 }
 
 BowserFire.prototype.draw = function () 
 {
 	this.removeFire();
-	
+		
 	if(this.ZombieOnRight)
 	{
 		this.animation.drawFrame(this.game.clockTick, this.ctx, this.x, this.y);
@@ -385,18 +415,20 @@ BowserFire.prototype.draw = function ()
 
 BowserFire.prototype.moreFireAmmo = function()
 {
-		setInterval(this.game.addEntity(new BowserFire(this.game)), 3000);
-		for(var i in this.game.entities) {
-			if(this.game.entities[i].constructor.name === "Bowser")
-			{
-				console.log("shooting from bowser");
-				console.log("this.game.entities[i].x : "+ this.game.entities[i].x);
-				this.x = bowserLocationX;
-			}
-			
+	//This is taking 3 seconds before another BowserFire can be created. 
+	setInterval(this.game.addEntity(new BowserFire(this.game)), 3000);
+	
+	for(var i in this.game.entities) {
+		if(this.game.entities[i].constructor.name === "Bowser")
+		{
+			console.log("shooting from bowser");
+			console.log("this.game.entities[i].x : "+ this.game.entities[i].x);
+			console.log("this.x : " + this.x);
+			this.x = this.game.entities[i].x;
+			console.log("After setting to Bowser this.x : " + this.x);
 		}
 		
-		
+	}	
 }
 
 BowserFire.prototype.moreFireBallShooting = function()
@@ -441,7 +473,7 @@ BowserFire.prototype.removeFire = function()
 {
 	for(var i = 0; i < this.game.entities.length; i++)
 	{
-		if(this.game.entities[i].x < -50 || this.game.entities[i].x > 1024+50)
+		if(this.game.entities[i].x <= -50 || this.game.entities[i].x > 1024+50)
 		{
 			console.log("Removing from Game: " + this.game.entities[i].x);
 			this.game.entities[i].removeFromWorld = true;
